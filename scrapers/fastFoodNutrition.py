@@ -104,10 +104,70 @@ def generate_nutrition_database(item_href_dict, browser):
     return item_dict
             
 def parse_nutrition_label(browser):
+    nutrition_dict = {}
     nutrition_label = browser.find_element(By.CSS_SELECTOR, "table").text.split("\n")
-    #PARSE NUTRITION LABEL AND PUT ALL ELEMENTS OF IT IN A DICTIONARY AND RETURN THAT DICTIONARY
-    print(nutrition_label)
-    return (nutrition_label)
+    try:
+        nutrition_dict['Serving Size'] = nutrition_label[0].split(' ')[2]
+    except:
+        pass
+    try:
+        nutrition_dict['Calories'] = float(nutrition_label[1].split(' ')[1])
+    except:
+        pass
+    try:
+        nutrition_dict['Total Fat (g)'] = float(nutrition_label[4].split(' ')[2].strip('g'))
+    except:
+        pass
+    try:
+        nutrition_dict['Saturated Fat (g))'] = float(nutrition_label[5].split(' ')[2].strip('g'))
+    except:
+        pass
+    try:
+        nutrition_dict['Trans Fat (g)'] = float(nutrition_label[6].split(' ')[2].strip('g'))
+    except:
+        pass
+    try:
+        nutrition_dict['Cholesterol (mg)'] = float(nutrition_label[7].split(' ')[1].strip('mg'))
+    except:
+        pass
+    try:
+        nutrition_dict['Sodium (mg)'] = float(nutrition_label[8].split(' ')[1].strip('mg'))
+    except:
+        pass
+    try:
+        nutrition_dict['Carbohydrates (g)'] = float(nutrition_label[9].split(' ')[2].strip('g'))
+    except:
+        pass
+    try:
+        nutrition_dict['Dietary Fiber'] = float(nutrition_label[10].split(' ')[2].strip('g'))
+    except:
+        pass
+    try:
+        nutrition_dict['Sugars (g)'] = float(nutrition_label[11].split(' ')[1].strip('g'))
+    except:
+        pass
+    try:
+        nutrition_dict['Protein (g)'] = float(nutrition_label[12].split(' ')[1].strip('g'))
+    except:
+        pass
+    try:
+        nutrition_dict['Vitamin A'] = nutrition_label[13].split(' ')[2]
+    except:
+        pass
+    try:
+        nutrition_dict['Vitamin C'] = nutrition_label[14].split(' ')[2]
+    except:
+        pass
+    try:
+        nutrition_dict['Calcium'] = nutrition_label[15].split(' ')[1]
+    except:
+        pass
+    try:
+        nutrition_dict['Iron'] = nutrition_label[16].split(' ')[1]
+    except:
+        pass
+    
+    return (nutrition_dict)
 
 example_restaurants = ['subway']
 browser = webdriver.Chrome(ChromeDriverManager().install())
