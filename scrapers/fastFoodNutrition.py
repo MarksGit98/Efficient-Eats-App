@@ -3,6 +3,7 @@ from selenium.webdriver.common.by import By
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 from bs4 import BeautifulSoup
+import re
 from main import save_into_excel_db
 
 RESTAURANT_LIST_URL = 'https://fastfoodnutrition.org/fast-food-restaurants'
@@ -78,9 +79,10 @@ def generate_nutrition_database(item_href_dict, browser):
                 browser.execute_script("window.scrollTo(0, 3000);")
                 time.sleep(1)
                 more_options_available = browser.find_element(By.XPATH, "//*[contains(text(), 'Select a size to see full nutrition facts')]")
-
+                
                 if not more_options_available:
                     nutrition_label = parse_nutrition_label(browser)
+                    item = item.replace(restaurant, '')
                     nutrition_dict[item] = nutrition_label
                     print(nutrition_label)
                 else:
@@ -93,19 +95,21 @@ def generate_nutrition_database(item_href_dict, browser):
                         browser.get(href)
                         time.sleep(2)
                         nutrition_label = parse_nutrition_label(browser)
+                        item = item.replace(restaurant, '')
                         item = browser.find_element(By.TAG_NAME, 'h1').text.replace('Nutrition Facts', '').strip()
-                        print(item)
                         nutrition_dict[item] = nutrition_label
                         
             except: 
                 continue
     
         item_dict[restaurant] = nutrition_dict
+        save_into_excel_db(nutrition_dict, restaurant, 'Restaurant', 'overwrite')
     return item_dict
             
 def parse_nutrition_label(browser):
     nutrition_dict = {}
     nutrition_label = browser.find_element(By.CSS_SELECTOR, "table").text.split("\n")
+    
     try:
         nutrition_dict['Serving Size'] = nutrition_label[0].split(' ')[2]
     except:
@@ -151,28 +155,31 @@ def parse_nutrition_label(browser):
     except:
         pass
     try:
-        nutrition_dict['Vitamin A'] = nutrition_label[13].split(' ')[2]
+        nutrition_dict['Vitamin A'] = re.search(r'\d+%', nutrition_label[13]).group()
     except:
         pass
     try:
-        nutrition_dict['Vitamin C'] = nutrition_label[14].split(' ')[2]
+        nutrition_dict['Vitamin C'] = re.search(r'\d+%', nutrition_label[14]).group()
     except:
         pass
     try:
-        nutrition_dict['Calcium'] = nutrition_label[15].split(' ')[1]
+        nutrition_dict['Calcium'] = re.search(r'\d+%', nutrition_label[15]).group()
     except:
         pass
     try:
-        nutrition_dict['Iron'] = nutrition_label[16].split(' ')[1]
+        nutrition_dict['Iron'] = re.search(r'\d+%', nutrition_label[16]).group()
     except:
         pass
     
     return (nutrition_dict)
 
-example_restaurants = ['subway']
 browser = webdriver.Chrome(ChromeDriverManager().install())
-# restaurants = compile_restaurant_list(browser)
-item_href_dict = compile_item_list(example_restaurants, browser)
+# restaurants = ['subway', 'mcdonalds']
+restaurants = compile_restaurant_list(browser)
+
+item_href_dict = compile_item_list(restaurants, browser)
 print(item_href_dict)
-item_dict = generate_nutrition_database(item_href_dict, browser)
-print(item_dict)
+store_dict = generate_nutrition_database(item_href_dict, browser)
+print(store_dict)
+    
+browser.close()

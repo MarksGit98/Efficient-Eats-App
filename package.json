@@ -1,5 +1,9 @@
 {
   "dependencies": {
-    "axios": "^0.26.1"
+    "axios": "^0.26.1",
+    "yarn": "^1.22.19"
+  },
+  "devDependencies": {
+    "expo-cli": "^6.3.8"
   }
 }
